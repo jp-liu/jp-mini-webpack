@@ -1,4 +1,4 @@
-function Compiler (config) {
+function Compiler(config) {
   this.config = config
 }
 

@@ -1,6 +1,6 @@
 const Compiler = require('./compiler/index.js')
 
-function jpMiniWebpack (config) {
+function jpMiniWebpack(config) {
   return new Compiler(config)
 }
 
