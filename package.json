@@ -1,0 +1,44 @@
+{
+  "name": "jp-mini-webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "jp-webpack": "./lib/jp-mini-webpack.js"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "prepare": "husky install",
+    "commit": "git-cz"
+  },
+  "keywords": [
+    "mini-webpack",
+    "webpack",
+    "study"
+  ],
+  "author": "jp-liu <fortune_coder@foxmail.com>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^15.0.0",
+    "commitizen": "^4.2.4",
+    "commitlint": "^15.0.0",
+    "commitlint-config-cz": "^0.13.2",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-customizable": "^6.3.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.2",
+    "prettier": "^2.5.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    }
+  }
+}
