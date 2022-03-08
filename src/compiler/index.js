@@ -3,8 +3,13 @@ const path = require('path')
 const rootPath = path.join(__dirname, '../../')
 
 const parser = require('@babel/parser')
-// const { transformFromAst } = require('@babel/core')
+const { transformFromAst } = require('@babel/core')
 const traverse = require('@babel/traverse').default
+
+const ejs = require('ejs')
+const { cwd } = require('process')
+
+let id = 0
 
 function Compiler(config) {
   this.config = config
@@ -13,8 +18,51 @@ function Compiler(config) {
 }
 
 Compiler.prototype.run = function () {
+  // 1.从入口开始创建依赖图谱
+  const graph = createGraph(this.entry)
+
+  // 2.根据模板打包创建对应代码
+  build(graph)
+}
+
+/**
+ * @description 根据模板打包成为对应的代码
+ * @param { { filePath: any; code: any; deps: any[]; mapping: {} }[] } graph 依赖图谱
+ */
+function build(graph) {
+  // 1.读取模板
+  const template = fs.readFileSync(
+    path.resolve(__dirname, '../template/bundle.ejs'),
+    {
+      encoding: 'utf-8'
+    }
+  )
+
+  // 2.处理图谱
+  const data = graph.map(assets => {
+    const { id, code, mapping } = assets
+    return {
+      id,
+      code,
+      mapping
+    }
+  })
+
+  // 3.通过模板生成对应代码
+  const code = ejs.render(template, { data })
+
+  // 4.生成代码
+  fs.writeFileSync(path.resolve(cwd(), './example/dist/bundle.js'), code)
+}
+
+/**
+ * @description 从入口出发,根据图谱编译对应的文件
+ * @param { string } entry 模块入口路径
+ * @returns 文件解析对应信息组成的数组
+ */
+function createGraph(entry) {
   // 1.从入口文件处理
-  const mainAssets = createAssets(this.entry)
+  const mainAssets = createAssets(entry)
 
   // 2.根据依赖图谱进行广度优先处理
   const queue = [mainAssets]
@@ -22,12 +70,12 @@ Compiler.prototype.run = function () {
     assets.deps.forEach(relativePath => {
       const childPath = path.resolve(rootPath, './example/', relativePath)
       const childAssets = createAssets(childPath)
+      assets.mapping[relativePath] = childAssets.id
       // 2.1 加入队列,等待下次执行
       queue.push(childAssets)
     })
   }
 
-  console.log(queue)
   return queue
 }
 
@@ -36,7 +84,8 @@ Compiler.prototype.run = function () {
  * @returns 静态资源信息和图谱
  */
 function createAssets(filePath) {
-  const entryPath = path.resolve(filePath)
+  // 1.处理路径,并读取文件内容
+  const entryPath = path.resolve(rootPath, filePath)
   const source = fs.readFileSync(entryPath, { encoding: 'utf-8' })
 
   // 2.解析代码 parse => ast
@@ -52,13 +101,18 @@ function createAssets(filePath) {
       deps.push(node.source.value)
     }
   })
-  console.log(deps, '---------------------')
 
   // 3.加工代码,转换 transform => ast
+  const { code } = transformFromAst(ast, null, {
+    presets: ['env']
+  })
+
   // 4.生成代码,还有依赖图谱
   return {
-    source,
-    deps
+    id: id++,
+    code,
+    deps,
+    mapping: {}
   }
 }
 
