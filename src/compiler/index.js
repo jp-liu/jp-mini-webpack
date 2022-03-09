@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const { cwd } = require('process')
 const rootPath = path.join(__dirname, '../../')
 
 const parser = require('@babel/parser')
@@ -7,7 +8,7 @@ const { transformFromAst } = require('@babel/core')
 const traverse = require('@babel/traverse').default
 
 const ejs = require('ejs')
-const { cwd } = require('process')
+const loader = require('../loader/loader.js')
 
 let id = 0
 
@@ -19,10 +20,10 @@ function Compiler(config) {
 
 Compiler.prototype.run = function () {
   // 1.从入口开始创建依赖图谱
-  const graph = createGraph(this.entry)
+  const graph = createGraph.call(this, this.entry)
 
   // 2.根据模板打包创建对应代码
-  build(graph)
+  build.call(this, graph)
 }
 
 /**
@@ -62,14 +63,14 @@ function build(graph) {
  */
 function createGraph(entry) {
   // 1.从入口文件处理
-  const mainAssets = createAssets(entry)
+  const mainAssets = createAssets.call(this, entry)
 
   // 2.根据依赖图谱进行广度优先处理
   const queue = [mainAssets]
   for (const assets of queue) {
     assets.deps.forEach(relativePath => {
       const childPath = path.resolve(rootPath, './example/', relativePath)
-      const childAssets = createAssets(childPath)
+      const childAssets = createAssets.call(this, childPath)
       assets.mapping[relativePath] = childAssets.id
       // 2.1 加入队列,等待下次执行
       queue.push(childAssets)
@@ -86,7 +87,10 @@ function createGraph(entry) {
 function createAssets(filePath) {
   // 1.处理路径,并读取文件内容
   const entryPath = path.resolve(rootPath, filePath)
-  const source = fs.readFileSync(entryPath, { encoding: 'utf-8' })
+  let source = fs.readFileSync(entryPath, { encoding: 'utf-8' })
+
+  // 1.1 对文件内容进行预处理和提供非`js`文件处理方法
+  source = loader.call(this, filePath, source)
 
   // 2.解析代码 parse => ast
   const ast = parser.parse(source, {

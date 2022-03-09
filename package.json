@@ -7,7 +7,6 @@
     "jp-webpack": "./lib/jp-mini-webpack.js"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.js",
     "lint": "eslint ./src --fix",
     "prepare": "husky install",
     "commit": "git-cz"

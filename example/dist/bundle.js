@@ -27,13 +27,18 @@
 
       var _foo2 = _interopRequireDefault(_foo)
 
+      var _user = require('./user.json')
+
+      var _user2 = _interopRequireDefault(_user)
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj }
       }
 
+      console.log(_user2.default)
       ;(0, _foo2.default)()
     },
-    { './foo.js': 1 }
+    { './foo.js': 1, './user.json': 2 }
   ],
 
   1: [
@@ -58,10 +63,27 @@
 
       ;(0, _bar2.default)()
     },
-    { './bar.js': 2 }
+    { './bar.js': 3 }
   ],
 
   2: [
+    function (require, module, exports) {
+      'use strict'
+
+      Object.defineProperty(exports, '__esModule', {
+        value: true
+      })
+      exports.default = {
+        name: 'jpliu6',
+        age: 15,
+        job: 'xdm',
+        height: 1.72
+      }
+    },
+    {}
+  ],
+
+  3: [
     function (require, module, exports) {
       'use strict'
 
