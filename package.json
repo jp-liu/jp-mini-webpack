@@ -7,7 +7,6 @@
     "jp-webpack": "./lib/jp-mini-webpack.js"
   },
   "scripts": {
-    "lint": "eslint ./src --fix",
     "prepare": "husky install",
     "commit": "git-cz"
   },
@@ -22,12 +21,16 @@
     "url": ""
   },
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.17.5",
     "@babel/parser": "^7.17.3",
     "@babel/traverse": "^7.17.3",
-    "@commitlint/config-conventional": "^15.0.0",
     "babel-preset-env": "^1.7.0",
+    "ejs": "^3.1.6",
+    "tapable": "^2.2.1"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^15.0.0",
     "commitizen": "^4.2.4",
     "commitlint": "^15.0.0",
     "commitlint-config-cz": "^0.13.2",
@@ -48,8 +51,5 @@
     "commitizen": {
       "path": "node_modules/cz-customizable"
     }
-  },
-  "dependencies": {
-    "ejs": "^3.1.6"
   }
 }

@@ -9,16 +9,23 @@ const traverse = require('@babel/traverse').default
 
 const ejs = require('ejs')
 const loader = require('../loader/loader.js')
+const initPlugins = require('../plugins/plugins')
+const { SyncHook } = require('tapable')
 
 let id = 0
+const hooks = {
+  fileName: new SyncHook(['context', 'source', 'target'])
+}
 
 function Compiler(config) {
   this.config = config
+  this.config.hooks = hooks
   this.entry = config.entry
   this.output = config.output
 }
 
 Compiler.prototype.run = function () {
+  initPlugins(this.config)
   // 1.从入口开始创建依赖图谱
   const graph = createGraph.call(this, this.entry)
 
@@ -53,7 +60,14 @@ function build(graph) {
   const code = ejs.render(template, { data })
 
   // 4.生成代码
-  fs.writeFileSync(path.resolve(cwd(), './example/dist/bundle.js'), code)
+  const context = this
+  hooks.fileName.call(context)
+  const bundlePath = path.resolve(
+    cwd(),
+    context.output.path,
+    context.output.fileName
+  )
+  fs.writeFileSync(bundlePath, code)
 }
 
 /**
