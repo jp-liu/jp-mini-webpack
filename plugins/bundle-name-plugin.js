@@ -4,7 +4,7 @@ class BundleName {
   }
 
   apply(ctx) {
-    ctx.hooks.fileName.tap('changeBundleName', () => {
+    ctx.hooks.emit.tap('changeBundleName', () => {
       ctx.output.fileName = this.config.fileName
     })
   }
