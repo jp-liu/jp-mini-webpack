@@ -16,6 +16,7 @@ function createContext(config) {
     currentEntry: '',
     entryPath: handleEntry(config.entry),
     outputPath: handleOutput(config.output),
+    templatePath: resolve(__dirname, '../template/bundle.ejs'),
     handleEntry,
     handleOutput
   }

@@ -17,7 +17,7 @@
     return module.exports
   }
 
-  require('0')
+  require(0)
 })({
   0: [
     function (require, module, exports) {
