@@ -2,6 +2,17 @@
   "name": "jp-mini-webpack",
   "version": "1.0.0",
   "description": "",
+  "keywords": [
+    "mini-webpack",
+    "webpack",
+    "study"
+  ],
+  "license": "ISC",
+  "author": "jp-liu <fortune_coder@foxmail.com>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
   "main": "index.js",
   "bin": {
     "jp-webpack": "./lib/jp-mini-webpack.js"
@@ -10,17 +21,6 @@
     "prepare": "husky install",
     "commit": "git-cz"
   },
-  "keywords": [
-    "mini-webpack",
-    "webpack",
-    "study"
-  ],
-  "author": "jp-liu <fortune_coder@foxmail.com>",
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.17.5",
     "@babel/parser": "^7.17.3",
@@ -30,19 +30,14 @@
     "tapable": "^2.2.1"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^0.18.8",
     "@commitlint/config-conventional": "^15.0.0",
     "commitizen": "^4.2.4",
     "commitlint": "^15.0.0",
     "commitlint-config-cz": "^0.13.2",
     "cz-conventional-changelog": "^3.3.0",
     "cz-customizable": "^6.3.0",
-    "eslint": "7.12.1",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "3.3.1",
-    "eslint-plugin-promise": "^5.0.0",
+    "eslint": "^8.10.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
     "prettier": "^2.5.1"

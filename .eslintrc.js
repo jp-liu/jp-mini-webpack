@@ -1,12 +1,8 @@
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true
-  },
-  extends: ['standard', 'prettier'],
-  parserOptions: {
-    ecmaVersion: 12,
-    sourceType: 'module'
-  },
-  rules: {}
+  extends: '@antfu',
+  rules: {
+    'comma-dangle': ['error', 'never'],
+    '@typescript-eslint/comma-dangle': 'off',
+    'no-console': 'off'
+  }
 }
