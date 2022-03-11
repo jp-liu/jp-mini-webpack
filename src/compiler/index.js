@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { resolve } = require('path')
+const { resolve, join } = require('path')
 
 const parser = require('@babel/parser')
 const { transformFromAst } = require('@babel/core')
@@ -79,11 +79,15 @@ class Compiler {
     // 2.根据依赖图谱进行广度优先处理
     const queue = [mainAssets]
     for (const assets of queue) {
+      // 2.1 依赖的的路径应该是从当前文件开始,进行相对路径查询
+      const assetsPath = assets.filePath
       assets.deps.forEach(relativePath => {
+        console.log(join(assetsPath, relativePath))
         const childPath = resolve(this.ctx.rootPath, './example/', relativePath)
+
         const childAssets = this.createAssets(childPath)
         assets.mapping[relativePath] = childAssets.id
-        // 2.1 加入队列,等待下次执行
+        // 2.2 加入队列,等待下次执行
         queue.push(childAssets)
       })
     }
@@ -127,6 +131,7 @@ class Compiler {
       id: id++,
       code,
       deps,
+      filePath,
       mapping: {}
     }
   }
@@ -137,12 +142,9 @@ class Compiler {
    */
   build(graph) {
     // 1.读取模板
-    const template = fs.readFileSync(
-      resolve(__dirname, '../template/bundle.ejs'),
-      {
-        encoding: 'utf-8'
-      }
-    )
+    const template = fs.readFileSync(this.ctx.templatePath, {
+      encoding: 'utf-8'
+    })
 
     // 2.处理图谱
     const data = graph.map(assets => {
@@ -158,8 +160,10 @@ class Compiler {
     const code = ejs.render(template, { data })
 
     // 4.生成代码
-    this.hooks.emit.callAsync(this.ctx, () => {
-      console.log(3)
+    this.hooks.emit.callAsync(this.ctx, err => {
+      if (err) {
+        throw err
+      }
     })
 
     fs.writeFileSync(this.ctx.outputPath, code)

@@ -17,10 +17,10 @@ fn(localRequire, module, module.exports)
 return module.exports
 }
 
-require("<%= data[0]["id"] %>")
+require(<%= data[0]["id"] %>)
 })({
 <% data.forEach(info => { %>
-"<%- info["id"] %>": [function (require, module, exports) {
+<%- info["id"] %>: [function (require, module, exports) {
 <%- info["code"] %>
 }, <%- JSON.stringify(info["mapping"]) %> ],
 <% }) %>
