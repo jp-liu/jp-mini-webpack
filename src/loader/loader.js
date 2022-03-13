@@ -6,14 +6,12 @@
 function loader(context, filePath, source) {
   let content = source
   const rules = context.module.rules
-  rules.forEach(rule => {
+  rules.forEach((rule) => {
     const { test, use } = rule
     if (test.test(filePath)) {
-      if (Array.isArray(use)) {
+      if (Array.isArray(use))
         content = use.reduceRight((s, loader) => loader(s), content)
-      } else {
-        content = use(content)
-      }
+      else content = use(content)
     }
   })
   return content

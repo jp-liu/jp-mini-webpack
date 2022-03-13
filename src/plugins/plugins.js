@@ -4,7 +4,7 @@
  */
 function initPlugins(context) {
   const plugins = context.plugins
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     plugin.apply(context)
   })
 }

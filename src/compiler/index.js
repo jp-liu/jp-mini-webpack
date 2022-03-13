@@ -1,16 +1,18 @@
 const fs = require('fs')
-const { resolve, join } = require('path')
+const { resolve } = require('path')
 
 const parser = require('@babel/parser')
 const { transformFromAst } = require('@babel/core')
 const traverse = require('@babel/traverse').default
 
 const ejs = require('ejs')
+const { SyncHook, AsyncSeriesHook } = require('tapable')
 const loader = require('../loader/loader.js')
 const initPlugins = require('../plugins/plugins')
-const { SyncHook, AsyncSeriesHook } = require('tapable')
 
-let id = 0
+let fid = 0
+const fileMap = new Map()
+
 class Compiler {
   constructor(context) {
     this.ctx = context
@@ -47,16 +49,17 @@ class Compiler {
    * @description 开始执行打包
    */
   run() {
-    this.hooks.beforeRun.callAsync(this, err => {
+    this.hooks.beforeRun.callAsync(this, (err) => {
       if (err) throw err
     })
-    this.hooks.run.callAsync(this, err => {
+    this.hooks.run.callAsync(this, (err) => {
       if (err) throw err
     })
 
     if (Array.isArray(this.entry)) {
       // TODO 多入口
-    } else {
+    }
+    else {
       this.ctx.currentEntry = this.entry
       // 1.从入口开始创建依赖图谱
       const graph = this.createGraph(this.entry)
@@ -69,7 +72,7 @@ class Compiler {
 
   /**
    * @description 从入口出发,根据图谱编译对应的文件
-   * @param { string } entry 当前模块入口路径
+   * @param { string } entry 当前模块入口绝对路径
    * @returns 文件解析对应信息组成的数组
    */
   createGraph(entry) {
@@ -79,16 +82,20 @@ class Compiler {
     // 2.根据依赖图谱进行广度优先处理
     const queue = [mainAssets]
     for (const assets of queue) {
-      // 2.1 依赖的的路径应该是从当前文件开始,进行相对路径查询
-      const assetsPath = assets.filePath
-      assets.deps.forEach(relativePath => {
-        console.log(join(assetsPath, relativePath))
-        const childPath = resolve(this.ctx.rootPath, './example/', relativePath)
+      assets.deps.forEach((relativePath) => {
+        // 2.1 依赖的的路径应该是从当前文件开始,进行相对路径查询
+        const childPath = resolve(assets.fileDirPath, relativePath)
 
-        const childAssets = this.createAssets(childPath)
-        assets.mapping[relativePath] = childAssets.id
-        // 2.2 加入队列,等待下次执行
-        queue.push(childAssets)
+        // 2.2 判断循环引用,已经是否已经处理过了
+        if (fileMap.has(childPath)) {
+          assets.mapping[relativePath] = fileMap.get(childPath).id
+        }
+        else {
+          const childAssets = this.createAssets(childPath)
+          assets.mapping[relativePath] = childAssets.id
+          // 2.2 加入队列,等待下次执行
+          queue.push(childAssets)
+        }
       })
     }
 
@@ -101,8 +108,7 @@ class Compiler {
    */
   createAssets(filePath) {
     // 1.处理路径,并读取文件内容
-    const entryPath = resolve(this.ctx.rootPath, filePath)
-    let source = fs.readFileSync(entryPath, { encoding: 'utf-8' })
+    let source = fs.readFileSync(filePath, { encoding: 'utf-8' })
 
     // 1.1 对文件内容进行预处理和提供非`js`文件处理方法
     source = loader(this.ctx, filePath, source)
@@ -127,13 +133,18 @@ class Compiler {
     })
 
     // 4.生成代码,还有依赖图谱
-    return {
-      id: id++,
+    const content = {
+      id: fid++,
       code,
       deps,
       filePath,
+      fileDirPath: filePath.split('/').slice(0, -1).join('/'),
       mapping: {}
     }
+
+    fileMap.set(filePath, content)
+
+    return content
   }
 
   /**
@@ -147,7 +158,7 @@ class Compiler {
     })
 
     // 2.处理图谱
-    const data = graph.map(assets => {
+    const data = graph.map((assets) => {
       const { id, code, mapping } = assets
       return {
         id,
@@ -160,15 +171,13 @@ class Compiler {
     const code = ejs.render(template, { data })
 
     // 4.生成代码
-    this.hooks.emit.callAsync(this.ctx, err => {
-      if (err) {
-        throw err
-      }
+    this.hooks.emit.callAsync(this.ctx, (err) => {
+      if (err) throw err
     })
 
     fs.writeFileSync(this.ctx.outputPath, code)
 
-    this.hooks.afterEmit.callAsync(this.ctx, err => {
+    this.hooks.afterEmit.callAsync(this.ctx, (err) => {
       if (err) throw err
     })
     this.hooks.assetEmitted.callAsync(
@@ -178,7 +187,7 @@ class Compiler {
         source: code,
         outputPath: this.output
       },
-      err => {
+      (err) => {
         if (err) throw err
       }
     )
