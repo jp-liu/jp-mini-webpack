@@ -1,7 +1,7 @@
 {
   "name": "jp-mini-webpack",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "implement a mini webpack",
   "keywords": [
     "mini-webpack",
     "webpack",
@@ -11,9 +11,10 @@
   "author": "jp-liu <fortune_coder@foxmail.com>",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/jp-liu/jp-mini-webpack",
+    "directory": "https://github.com/jp-liu/jp-mini-webpack"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "bin": {
     "jp-webpack": "./lib/jp-mini-webpack.js"
   },

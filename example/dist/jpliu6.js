@@ -39,7 +39,7 @@
         return obj && obj.__esModule ? obj : { default: obj }
       }
 
-      console.log(_user2.default, _test.a)
+      console.log(_user2.default, a)
       ;(0, _foo2.default)()
       ;(0, _test2.default)()
     },
